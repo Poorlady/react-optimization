@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { forwardRef } from 'react'
 import usePokemon from './usePokemon'
-import Header from '@/shared/Header'
+// import Header from '@/shared/Header'
 
-const PokemonCard = ({ pokemon: pokemonProp, style }) => {
+const PokemonCard = forwardRef(({ pokemon: pokemonProp, style  }, ref) => {
   const {
     data: pokemon,
     isLoading,
@@ -16,11 +16,11 @@ const PokemonCard = ({ pokemon: pokemonProp, style }) => {
 
   if (pokemon)
     return (
-      <div style={style}>
-        <Header/>
-        <p style={{margin:'0'}}>{pokemon.name}</p>
+      <div style={style} ref={ref}>
+        {/* <Header/> */}
+        <p style={{margin:'0'}}>{`${pokemon.name} ${ref ? 'ref':''}`}</p>
       </div>
     )
-}
+})
 
 export default PokemonCard

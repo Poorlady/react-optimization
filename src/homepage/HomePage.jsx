@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { FpsView } from 'react-fps'
 import List from './components/List'
 import PokemonCard from './components/PokemonCard'
@@ -6,7 +6,10 @@ import usePokemons from './components/usePokemons'
 import Virtualization from './components/VirtualizationChild'
 
 const HomePage = () => {
-  const { data: pokemons, isLoading, isError, error } = usePokemons()
+  const [pageNum, setPageNum] = useState(0)
+  const observer = useRef()
+  const { data: pokemons, isLoading, isError, error } = usePokemons(pageNum)
+  // console.log(pokemons)
   const [scrollTop, setScrollTop] = useState(0)
   const itemHeight = 30
   const containerHeight = 500
@@ -21,16 +24,46 @@ const HomePage = () => {
     : 0
   // console.log(startIndex, endIndex, scrollTop)
 
+  const lastBookElementRef = useCallback(
+    (node) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        console.log(entries[0].isIntersecting, entries, pokemons.next)
+        if (entries[0].isIntersecting && (pokemons.next !== null)) {
+          setPageNum((prev) => prev + 1);
+        }
+      });
+      console.log(observer.current)
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, pokemons]
+  )
+
+  // console.log(pageNum)
+
   function renderPokemon() {
     const filterPokemons = pokemons.results.slice(startIndex, endIndex)
     // console.log(filterPokemons, startIndex, endIndex)
     const mappedPokemons = filterPokemons.map((pokemon, i) => {
+      const isLastElement = pokemon.id === pokemons.results.length
+      console.log('arr',isLastElement, pokemon , pokemons.results.length )
       const propStyle = {
         position: 'absolute',
         top: itemHeight * (startIndex + i) + 1,
         width: '100%',
         height: itemHeight,
       }
+      if (isLastElement)
+        return (
+          <PokemonCard
+            style={propStyle}
+            // height={itemHeight}
+            key={pokemon.name}
+            pokemon={pokemon}
+            ref={lastBookElementRef}
+          />
+        )
       return (
         <PokemonCard
           style={propStyle}
@@ -61,6 +94,7 @@ const HomePage = () => {
           itemSize={itemHeight}
           width={'100%'}
           handleScroll={handleScroll}
+          innerHeight={pokemons.results.length * itemHeight}
         >
           {renderPokemon()}
         </List>

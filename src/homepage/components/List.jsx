@@ -1,6 +1,6 @@
 import React from 'react'
 
-const List = ({ itemCount, itemSize, height, width, handleScroll, children }) => {
+const List = ({ itemCount, itemSize, height, width, handleScroll, children, innerHeight }) => {
   return (
     <div
       className='outer-container'
@@ -10,7 +10,8 @@ const List = ({ itemCount, itemSize, height, width, handleScroll, children }) =>
       <div
         className='inner-container'
         style={{
-          height: itemCount * itemSize,
+          // height: itemCount * itemSize,
+          height: innerHeight,
           position: 'relative',
           width: '100%',
         }}
